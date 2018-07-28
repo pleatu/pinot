@@ -117,7 +117,7 @@ public class FastHllQueriesTest extends BaseQueriesTest {
     aggregationOperator = getOperatorForQueryWithFilter(BASE_QUERY);
     resultsBlock = aggregationOperator.nextBlock();
     executionStatistics = aggregationOperator.getExecutionStatistics();
-    QueriesTestUtils.testInnerSegmentExecutionStatistics(executionStatistics, 6129L, 112472L, 12258L, 30000L);
+    QueriesTestUtils.testInnerSegmentExecutionStatistics(executionStatistics, 6129L, 95727L, 12258L, 30000L);
     aggregationResult = resultsBlock.getAggregationResult();
     Assert.assertEquals(((HyperLogLog) aggregationResult.get(0)).cardinality(), 17L);
     Assert.assertEquals(((HyperLogLog) aggregationResult.get(1)).cardinality(), 1197L);
@@ -137,7 +137,7 @@ public class FastHllQueriesTest extends BaseQueriesTest {
     QueriesTestUtils.testInterSegmentAggregationResult(brokerResponse, 4L, 0L, 8L, 120000L, new String[]{"21", "1762"});
     // Test inter segments query with filter
     brokerResponse = getBrokerResponseForQueryWithFilter(BASE_QUERY);
-    QueriesTestUtils.testInterSegmentAggregationResult(brokerResponse, 24516L, 449888L, 49032L, 120000L,
+    QueriesTestUtils.testInterSegmentAggregationResult(brokerResponse, 24516L, 382908L, 49032L, 120000L,
         new String[]{"17", "1197"});
     // Test inter segments query with group-by
     brokerResponse = getBrokerResponseForQuery(BASE_QUERY + GROUP_BY);
@@ -164,7 +164,7 @@ public class FastHllQueriesTest extends BaseQueriesTest {
     aggregationOperator = getOperatorForQueryWithFilter(BASE_QUERY);
     resultsBlock = aggregationOperator.nextBlock();
     executionStatistics = aggregationOperator.getExecutionStatistics();
-    QueriesTestUtils.testInnerSegmentExecutionStatistics(executionStatistics, 6129L, 84134L, 12258L, 30000L);
+    QueriesTestUtils.testInnerSegmentExecutionStatistics(executionStatistics, 6129L, 71798L, 12258L, 30000L);
     aggregationResult = resultsBlock.getAggregationResult();
     Assert.assertEquals(((HyperLogLog) aggregationResult.get(0)).cardinality(), 17L);
     Assert.assertEquals(((HyperLogLog) aggregationResult.get(1)).cardinality(), 1197L);
@@ -185,7 +185,7 @@ public class FastHllQueriesTest extends BaseQueriesTest {
         new String[]{"21", "1762"});
     // Test inter segments query with filter
     brokerResponse = getBrokerResponseForQueryWithFilter(BASE_QUERY);
-    QueriesTestUtils.testInterSegmentAggregationResult(brokerResponse, 24516L, 336536L, 49032L, 120000L,
+    QueriesTestUtils.testInterSegmentAggregationResult(brokerResponse, 24516L, 287192L, 49032L, 120000L,
         new String[]{"17", "1197"});
     // Test inter segments query with group-by
     brokerResponse = getBrokerResponseForQuery(BASE_QUERY + GROUP_BY);

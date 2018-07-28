@@ -107,6 +107,11 @@ public class InPredicateEvaluatorFactory {
     }
 
     @Override
+    public int getNumMatchingDictIds() {
+     return _matchingDictIdSet.size();
+    }
+
+    @Override
     public int[] getMatchingDictIds() {
       if (_matchingDictIds == null) {
         _matchingDictIds = _matchingDictIdSet.toIntArray();

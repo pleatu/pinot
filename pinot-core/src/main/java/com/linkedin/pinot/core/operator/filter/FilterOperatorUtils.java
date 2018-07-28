@@ -18,6 +18,7 @@ package com.linkedin.pinot.core.operator.filter;
 import com.linkedin.pinot.core.common.DataSource;
 import com.linkedin.pinot.core.common.DataSourceMetadata;
 import com.linkedin.pinot.core.common.Predicate;
+import com.linkedin.pinot.core.operator.filter.predicate.BaseDictionaryBasedPredicateEvaluator;
 import com.linkedin.pinot.core.operator.filter.predicate.PredicateEvaluator;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,6 +26,15 @@ import java.util.List;
 
 
 public class FilterOperatorUtils {
+
+  /**
+   * Base penalty associated with predicates for multivalue columns.
+   * The cost penalties for single and multivalue columns are chosen to be percentages. The base
+   * multivalue penalty is chosen to associate a cost that is *always* higher than single value
+   * columns.
+   */
+  private static final int BASE_MV_PENALTY = 100;
+
   private FilterOperatorUtils() {
   }
 
@@ -79,11 +89,65 @@ public class FilterOperatorUtils {
           return 3;
         }
         if (filterOperator instanceof ScanBasedFilterOperator) {
-          return 4;
+          return getScanBasedFilterPriority(filterOperator, 4);
         }
         throw new IllegalStateException(filterOperator.getClass().getSimpleName()
             + " should not be re-ordered, remove it from the list before calling this method");
       }
     });
+  }
+
+  /**
+   * Returns the priority for scan based filtering. Multivalue column evaluation is costly, so
+   * reorder such that multivalue columns are evaluated after single value columns.
+   *
+   * Additionally, estimate the cost of the predicate based on percentage of docs that can be scanned.
+   * This is proportional to the number of values that *can* be matched by the predicate and the
+   * number of docs per value (derived from the column's cardinality).
+   *
+   * To ensure multivalue columns are assigned a priority that is strictly lower (ie, numerically
+   * higher) than the single-value counterparts, we boost the multivalue priority by the max cost
+   * for single value columns.
+   *
+   * @param filterOperator the filter operator to prioritize
+   * @return the priority to be associated with the filter
+   */
+  private static int getScanBasedFilterPriority(BaseFilterOperator filterOperator, int basePriority) {
+    DataSourceMetadata metadata = filterOperator.getDataSourceMetadata();
+    PredicateEvaluator evaluator = filterOperator.getPredicateEvaluator();
+    if (metadata == null || evaluator == null) {
+      return basePriority;
+    }
+
+    // deprioritize multivalue columns
+    if (!metadata.isSingleValue()) {
+      basePriority = basePriority + BASE_MV_PENALTY;
+    }
+
+    int penalty = 0;
+    if (evaluator instanceof BaseDictionaryBasedPredicateEvaluator) {
+      int size = metadata.getCardinality();
+
+      Predicate.Type type = evaluator.getPredicateType();
+      // obtain an estimate of the number of docs that can be matched
+      // for regexp_like, we default to using cardinality
+      if (!(type == Predicate.Type.REGEXP_LIKE)) {
+        if (type == Predicate.Type.NEQ || type == Predicate.Type.NOT_IN) {
+          // use the difference between cardinality and non-matching docs as a proxy for matched count
+          size = size - evaluator.getNumNonMatchingDictIds();
+        } else {
+          size = evaluator.getNumMatchingDictIds();
+        }
+      }
+
+      int numDocs = metadata.getNumDocs();
+      int numDocsPerValue = numDocs/metadata.getCardinality();
+      if (numDocsPerValue == 0) {
+        numDocsPerValue = 1;
+      }
+      // get the cost as a percentage of docs scanned - cap it off at 100 (should never be > 100)
+      penalty = ((numDocsPerValue * size * 100) / numDocs) % 100;
+    }
+    return (penalty > 0) ? basePriority + penalty : basePriority;
   }
 }

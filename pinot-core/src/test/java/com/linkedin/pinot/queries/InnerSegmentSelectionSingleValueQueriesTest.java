@@ -100,7 +100,7 @@ public class InnerSegmentSelectionSingleValueQueriesTest extends BaseSingleValue
     resultsBlock = selectionOnlyOperator.nextBlock();
     executionStatistics = selectionOnlyOperator.getExecutionStatistics();
     Assert.assertEquals(executionStatistics.getNumDocsScanned(), 10L);
-    Assert.assertEquals(executionStatistics.getNumEntriesScannedInFilter(), 48241L);
+    Assert.assertEquals(executionStatistics.getNumEntriesScannedInFilter(), 35905L);
     Assert.assertEquals(executionStatistics.getNumEntriesScannedPostFilter(), 110L);
     Assert.assertEquals(executionStatistics.getNumTotalRawDocs(), 30000L);
     selectionDataSchema = resultsBlock.getSelectionDataSchema();
@@ -147,7 +147,7 @@ public class InnerSegmentSelectionSingleValueQueriesTest extends BaseSingleValue
     resultsBlock = selectionOnlyOperator.nextBlock();
     executionStatistics = selectionOnlyOperator.getExecutionStatistics();
     Assert.assertEquals(executionStatistics.getNumDocsScanned(), 10L);
-    Assert.assertEquals(executionStatistics.getNumEntriesScannedInFilter(), 48241L);
+    Assert.assertEquals(executionStatistics.getNumEntriesScannedInFilter(), 35905L);
     Assert.assertEquals(executionStatistics.getNumEntriesScannedPostFilter(), 30L);
     Assert.assertEquals(executionStatistics.getNumTotalRawDocs(), 30000L);
     selectionDataSchema = resultsBlock.getSelectionDataSchema();
@@ -194,7 +194,7 @@ public class InnerSegmentSelectionSingleValueQueriesTest extends BaseSingleValue
     resultsBlock = selectionOrderByOperator.nextBlock();
     executionStatistics = selectionOrderByOperator.getExecutionStatistics();
     Assert.assertEquals(executionStatistics.getNumDocsScanned(), 6129L);
-    Assert.assertEquals(executionStatistics.getNumEntriesScannedInFilter(), 84134L);
+    Assert.assertEquals(executionStatistics.getNumEntriesScannedInFilter(), 71798L);
     Assert.assertEquals(executionStatistics.getNumEntriesScannedPostFilter(), 24516L);
     Assert.assertEquals(executionStatistics.getNumTotalRawDocs(), 30000L);
     selectionDataSchema = resultsBlock.getSelectionDataSchema();
